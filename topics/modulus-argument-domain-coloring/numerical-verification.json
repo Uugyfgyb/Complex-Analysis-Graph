@@ -1,0 +1,30 @@
+{
+  "source_image": "original.png (user attachment, 1600x911)",
+  "z": [
+    1.5,
+    1.2
+  ],
+  "modulus": 1.9209372712298547,
+  "argument_degrees": 38.65980825409009,
+  "inverse": [
+    0.4065040650406504,
+    -0.3252032520325203
+  ],
+  "log2_modulus": 0.9418104081428358,
+  "separate_product_example": [
+    -0.41411047216403296,
+    1.5454813220625094
+  ],
+  "checks": {
+    "modulus": true,
+    "argument_degrees": true,
+    "inverse_real": true,
+    "inverse_imag": true,
+    "inverse_modulus": true,
+    "log2_modulus": true,
+    "product_modulus": true,
+    "product_angle": true,
+    "zero_has_no_inverse": true
+  },
+  "ok": true
+}

@@ -1,0 +1,71 @@
+{
+  "ok": true,
+  "results": [
+    {
+      "width": 1440,
+      "dimensions": {
+        "scrollWidth": 1440,
+        "innerWidth": 1440,
+        "bodyHeight": 3485
+      },
+      "checks": {
+        "selftest": true,
+        "inverse": true,
+        "zero": true,
+        "reset": true,
+        "input": true,
+        "planeClick": true,
+        "mapClick": true,
+        "noOverflow": true,
+        "noErrors": true,
+        "noExternal": true
+      },
+      "errors": [],
+      "external": []
+    },
+    {
+      "width": 390,
+      "dimensions": {
+        "scrollWidth": 390,
+        "innerWidth": 390,
+        "bodyHeight": 5592
+      },
+      "checks": {
+        "selftest": true,
+        "inverse": true,
+        "zero": true,
+        "reset": true,
+        "input": true,
+        "planeClick": true,
+        "mapClick": true,
+        "noOverflow": true,
+        "noErrors": true,
+        "noExternal": true
+      },
+      "errors": [],
+      "external": []
+    },
+    {
+      "width": 320,
+      "dimensions": {
+        "scrollWidth": 320,
+        "innerWidth": 320,
+        "bodyHeight": 5660
+      },
+      "checks": {
+        "selftest": true,
+        "inverse": true,
+        "zero": true,
+        "reset": true,
+        "input": true,
+        "planeClick": true,
+        "mapClick": true,
+        "noOverflow": true,
+        "noErrors": true,
+        "noExternal": true
+      },
+      "errors": [],
+      "external": []
+    }
+  ]
+}
