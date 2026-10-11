@@ -1,0 +1,14 @@
+Independent symbolic check after import
+Environment: Python 3.14, SymPy 1.14.0
+Command: python3 source/check-sympy.py (from the topic directory, with SymPy available)
+
+(1) sympy 前 14 项与路线 A 的差 = 0
+(2) sympy 前 14 项与路线 A 的差 = 0
+(3) sympy 前 14 项与路线 A 的差 = 0
+(4) sympy 前 14 项与路线 A 的差 = 0
+(5) sympy 前 14 项与路线 A 的差 = 0
+(6) sympy 前 14 项与路线 A 的差 = 0
+(7) sympy 前 14 项与路线 A 的差 = 0
+(8) sympy 前 14 项与路线 A 的差 = -
+(8) sympy 前 14 项与路线 A(p_n sin1 + q_n cos1) 的差: 全部恒等 0
+结论: sympy 与路线 A 在有意义下逐项恒等

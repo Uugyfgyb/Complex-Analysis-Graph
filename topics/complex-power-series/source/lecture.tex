@@ -1,0 +1,506 @@
+% !TEX program = xelatex
+% complex-power-series-lecture.tex
+% 钟玉泉《复变函数论》习题四第 12 题：八个函数的幂级数展开与收敛半径
+% 数据文件由同目录 make-data.py 生成；三条独立数值路线见第 4 节。
+\documentclass[11pt,a4paper]{ctexart}
+\usepackage{amsmath,amssymb,amsthm,mathrsfs}
+\usepackage[margin=2.3cm]{geometry}
+\usepackage{xcolor,booktabs,array,enumitem}
+\usepackage{float}
+\usepackage{tikz}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.18}
+\usetikzlibrary{arrows.meta,calc}
+\usepackage[most]{tcolorbox}
+\usepackage{titlesec,fancyhdr,hyperref}
+\hypersetup{colorlinks=true,linkcolor=blue!55!black,citecolor=blue!55!black,urlcolor=blue!55!black}
+
+\definecolor{keyblue}{RGB}{31,78,121}
+\definecolor{ideagreen}{RGB}{46,125,91}
+\definecolor{warnred}{RGB}{169,50,38}
+\definecolor{tintblue}{RGB}{238,244,250}
+\definecolor{tintgreen}{RGB}{236,246,241}
+\definecolor{tintred}{RGB}{252,240,238}
+
+\newtcolorbox{keybox}[1][]{colback=tintblue,colframe=keyblue,boxrule=0pt,
+  leftrule=3.2pt,arc=1pt,left=6pt,right=6pt,top=4pt,bottom=4pt,
+  breakable,fonttitle=\bfseries,title=#1}
+\newtcolorbox{ideabox}[1][]{colback=tintgreen,colframe=ideagreen,boxrule=0pt,
+  leftrule=3.2pt,arc=1pt,left=6pt,right=6pt,top=4pt,bottom=4pt,
+  breakable,fonttitle=\bfseries,title=#1}
+\newtcolorbox{warnbox}[1][]{colback=tintred,colframe=warnred,boxrule=0pt,
+  leftrule=3.2pt,arc=1pt,left=6pt,right=6pt,top=4pt,bottom=4pt,
+  breakable,fonttitle=\bfseries,title=#1}
+
+\newtheorem{theorem}{定理}[section]
+\newtheorem{corollary}[theorem]{推论}
+\theoremstyle{definition}
+\newtheorem{example}[theorem]{例}
+\newtheorem{remark}[theorem]{注}
+
+\titleformat{\section}{\normalfont\Large\bfseries\color{keyblue}}{\thesection}{0.6em}{}
+\titleformat{\subsection}{\normalfont\large\bfseries}{\thesubsection}{0.6em}{}
+\titlespacing*{\section}{0pt}{1.6ex plus .4ex}{0.9ex}
+\titlespacing*{\subsection}{0pt}{1.3ex plus .3ex}{0.6ex}
+
+\pagestyle{fancy}\fancyhf{}
+\fancyhead[L]{\small\color{keyblue}复变函数的幂级数展开与收敛半径}
+\fancyhead[R]{\small\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+\setlength{\parskip}{0.35ex}
+\linespread{1.04}
+
+\newcommand{\dd}{\mathrm{d}}
+\DeclareMathOperator{\Imag}{Im}
+\providecommand{\sh}{\operatorname{sh}}
+\providecommand{\ch}{\operatorname{ch}}
+\newcommand{\ii}{\mathrm{i}}
+
+\begin{document}
+
+\begin{center}
+{\LARGE\bfseries\color{keyblue} 复变函数的幂级数展开与收敛半径}\\[1.0ex]
+{\large 钟玉泉《复变函数论》习题四第 12 题：八个函数的完整解答与数值核验}\\[0.9ex]
+{\small 展开中心 $z_0=0$\quad$\cdot$\quad 三条独立数值路线\quad$\cdot$\quad 图与数据可由 \texttt{make-data.py} 复算}
+\end{center}
+\vspace{0.4ex}
+\hrule
+\vspace{1.2ex}
+
+\begin{ideabox}[读前必读]
+\textbf{这一页在做什么.} 把八个函数在 $z_0=0$ 处展开成幂级数 $\sum_{n\ge0}a_nz^n$，并给出每个级数的收敛半径 $R$。
+
+\textbf{一句话抓住要害.} $R$ 等于\emph{展开中心到最近奇点的距离}：
+\[
+\boxed{\;R=\operatorname{dist}\bigl(z_0,\,\Sigma_f\bigr)=\min_{z^\ast\in\Sigma_f}|z^\ast-z_0|\;}
+\]
+其中 $\Sigma_f$ 为 $f$ 的奇点集。本题 $z_0=0$，所以 $R=\min|z^\ast|$；没有有限奇点的整函数 (3)(4)(5)(6) 给出 $R=+\infty$。
+
+\textbf{三条要点.}
+\begin{enumerate}[leftmargin=1.6em,itemsep=0.15ex,topsep=0.3ex]
+\item 展开是唯一的（Taylor 系数 $a_n=f^{(n)}(0)/n!$），所以怎么算都行，但算完必须能对上一个封闭形式或递推。
+\item 收敛半径完全由\textbf{系数的衰减速度}编码：$|a_n|\approx C R^{-n}$，即 $\limsup|a_n|^{1/n}=1/R$。
+\item 前几项凑巧像某个简单规律，不等于它就是那个规律：第 (7) 题前四项像 $-\frac1{n!}$，从 $n=4$ 起就崩了，这是本题最大的坑。
+\end{enumerate}
+\end{ideabox}
+
+\section{题目与答案总表}
+
+\textbf{题目.} 把下列各函数展开成 $z$ 的幂级数，并指出它们的收敛半径：
+\[
+\begin{array}{llll}
+(1)\ \dfrac{1}{1+z^3}; & (2)\ \dfrac{1}{(1+z^2)^2}; & (3)\ \cos z^2; & (4)\ \sh z;\\[1.4ex]
+(5)\ \ch z; & (6)\ e^{z^2}\sin z^2; & (7)\ e^{\frac{z}{z-1}}; & (8)\ \sin\dfrac{1}{1-z}.
+\end{array}
+\]
+（原书对 (8) 附提示：$\sin\frac{1}{1-z}=\sin\bigl(1+\frac{z}{1-z}\bigr)=\sin1\cos\frac{z}{1-z}+\cos1\sin\frac{z}{1-z}$。）
+
+\begin{table}[H]
+\centering
+\small
+\setlength{\tabcolsep}{5pt}
+\renewcommand{\arraystretch}{1.35}
+\begin{tabular}{@{}c >{\raggedright\arraybackslash}p{2.9cm} >{\raggedright\arraybackslash}p{9.3cm} c@{}}
+\toprule
+\textbf{序号} & $f(z)$ & \textbf{在 $z=0$ 的幂级数展开} & \boldmath$R$\\
+\midrule
+(1) & $1/(1+z^3)$ & $\displaystyle\sum_{k\ge0}(-1)^k z^{3k}=1-z^3+z^6-z^9+\cdots$ & $1$\\
+(2) & $1/(1+z^2)^2$ & $\displaystyle\sum_{k\ge0}(-1)^k(k+1)z^{2k}=1-2z^2+3z^4-4z^6+\cdots$ & $1$\\
+(3) & $\cos z^2$ & $\displaystyle\sum_{k\ge0}\frac{(-1)^k}{(2k)!}z^{4k}=1-\frac{z^4}{2!}+\frac{z^8}{4!}-\cdots$ & $\infty$\\
+(4) & $\sh z$ & $\displaystyle\sum_{k\ge0}\frac{z^{2k+1}}{(2k+1)!}=z+\frac{z^3}{3!}+\frac{z^5}{5!}+\cdots$ & $\infty$\\
+(5) & $\ch z$ & $\displaystyle\sum_{k\ge0}\frac{z^{2k}}{(2k)!}=1+\frac{z^2}{2!}+\frac{z^4}{4!}+\cdots$ & $\infty$\\
+(6) & $e^{z^2}\sin z^2$ & $\displaystyle\sum_{k\ge0}\frac{2^{k/2}\sin(k\pi/4)}{k!}z^{2k}$ \newline
+   $\displaystyle{}=z^2+z^4+\frac{z^6}{3}-\frac{z^{10}}{30}-\frac{z^{12}}{90}-\cdots$ & $\infty$\\[0.4ex]
+(7) & $e^{z/(z-1)}$ & $\displaystyle 1-z-\frac{z^2}{2}-\frac{z^3}{6}+\frac{z^4}{24}+\frac{19z^5}{120}+\frac{151z^6}{720}+\cdots$ & $1$\\
+(8) & $\sin\frac{1}{1-z}$ & $\displaystyle \sin1+z\cos1+z^2\!\Bigl(\cos1-\frac{\sin1}{2}\Bigr)+\cdots$ & $1$\\
+\bottomrule
+\end{tabular}
+\caption{八个函数的展开式与收敛半径。第 (7)(8) 行的省略号\textbf{不是}简单规律，见 \S\ref{sec:traps}。}
+\label{tab:answers}
+\end{table}
+
+\begin{remark}
+(1)(2) 的级数只有三分之一 / 一半的系数非零；(6) 只有偶次幂。系数"稀疏"并不意味着半径大：(1) 的非零系数全是 $\pm1$，$|a_n|^{1/n}$ 沿子列 $n=3k$ 恒为 $1$，故 $R=1$。见 \S\ref{sec:traps} 陷阱三。
+\end{remark}
+
+\section{原理：为什么半径恰好是"到最近奇点的距离"}
+
+\begin{theorem}[Cauchy--Hadamard]
+对幂级数 $\sum_{n\ge0}a_nz^n$，令
+\[
+\frac1R=\limsup_{n\to\infty}|a_n|^{1/n}\qquad (R\in[0,+\infty]),
+\]
+则它在 $|z|<R$ 内绝对收敛、在 $|z|>R$ 发散，且在 $|z|<R$ 内闭一致收敛。
+\end{theorem}
+
+\begin{theorem}[半径 $=$ 到最近奇点的距离]\label{thm:dist}
+设 $f$ 在圆盘 $|z|<\rho$ 内解析，且 $f$ 不能解析延拓到圆周 $|z|=\rho$ 上的某点 $z^\ast$（即 $z^\ast$ 是 $f$ 的奇点）。则 $f$ 在 $z=0$ 的 Taylor 级数的收敛半径恰为 $\rho$。一般地
+\[
+R=\sup\{r>0:\ f\ \text{在}\ |z|<r\ \text{内解析}\}=\operatorname{dist}\bigl(0,\ \text{奇点集}\bigr).
+\]
+\end{theorem}
+
+\begin{proof}[证明梗概]
+\textbf{($R\ge\rho$)} 取 $0<r<\rho$，记 $M(r)=\max_{|z|=r}|f(z)|$。由 Cauchy 积分公式与 Cauchy 估计
+\[
+a_n=\frac{f^{(n)}(0)}{n!}=\frac{1}{2\pi\ii}\oint_{|z|=r}\frac{f(z)}{z^{n+1}}\dd z,
+\qquad |a_n|\le\frac{M(r)}{r^n},
+\]
+于是 $\limsup|a_n|^{1/n}\le 1/r$，即 $R\ge r$；令 $r\uparrow\rho$ 得 $R\ge\rho$。
+
+\textbf{($R\le\rho$)} 若 $R>\rho$，则和函数 $\sum a_nz^n$ 在 $|z|<R$ 内解析，特别在 $z^\ast$ 的某个邻域内与 $f$ 一致（两者在 $|z|<\rho$ 内相等，由解析函数的唯一性延拓过去），与"$z^\ast$ 是奇点"矛盾。
+\end{proof}
+
+\begin{ideabox}[机制：收敛圆内不可能有奇点]
+幂级数的和函数在自己收敛圆内\textbf{永远}解析——它是多项式的一致极限。所以奇点只能落在收敛圆周上或圆周外；半径因此被\textbf{最近的}那个奇点卡死。反过来，整函数（没有有限奇点）的 Taylor 级数在全平面收敛，$R=+\infty$，此时系数衰减比任何几何序列都快（阶乘型衰减）。
+\end{ideabox}
+
+\begin{table}[H]
+\centering
+\small
+\setlength{\tabcolsep}{5pt}
+\renewcommand{\arraystretch}{1.25}
+\begin{tabular}{@{}c >{\raggedright\arraybackslash}p{6.4cm} >{\raggedright\arraybackslash}p{4.6cm} c@{}}
+\toprule
+\textbf{序号} & \textbf{奇点} & \textbf{到原点的距离} & \boldmath$R$\\
+\midrule
+(1) & $z^3=-1$ 的三根 $\;e^{\ii\pi/3},\,-1,\,e^{\ii5\pi/3}$（一阶极点） & 均为 $1$ & $1$\\
+(2) & $z=\pm\ii$（二阶极点） & 均为 $1$ & $1$\\
+(3) & 无 & --- & $\infty$\\
+(4) & 无 & --- & $\infty$\\
+(5) & 无 & --- & $\infty$\\
+(6) & 无（$e^{z^2}$、$\sin z^2$ 都是整函数） & --- & $\infty$\\
+(7) & $z=1$：$\;e^{z/(z-1)}=e\cdot e^{1/(z-1)}$，本性奇点 & $1$ & $1$\\
+(8) & $z=1$：$\;\sin\frac1{1-z}$，本性奇点 & $1$ & $1$\\
+\bottomrule
+\end{tabular}
+\caption{奇点位置与半径。注意 (7)(8) 都在 $z=1$ 处有本性奇点：在本性奇点的任何去心邻域内函数取遍 $\mathbb{C}$（Weierstrass 定理），这正是它们"最坏"的原因。}
+\end{table}
+
+\section{逐题详解}
+
+\subsection{(1) $\dfrac{1}{1+z^3}$：几何级数直接代入}
+由 $\dfrac{1}{1-w}=\sum_{k\ge0}w^k\ (|w|<1)$，取 $w=-z^3$：
+\[
+\frac{1}{1+z^3}=\sum_{k\ge0}(-z^3)^k=\sum_{k\ge0}(-1)^kz^{3k},\qquad |z^3|<1\iff|z|<1 .
+\]
+半径 $R=1$：三个奇点 $z^3=-1$ 都在 $|z|=1$ 上，最近距离为 $1$。
+
+\subsection{(2) $\dfrac{1}{(1+z^2)^2}$：几何级数求导}
+对 $\dfrac{1}{1+w}=\sum_{k\ge0}(-w)^k$ 两边关于 $w$ 求导：
+\[
+-\frac{1}{(1+w)^2}=\sum_{k\ge1}(-1)^kk\,w^{k-1}
+\ \Longrightarrow\
+\frac{1}{(1+w)^2}=\sum_{k\ge0}(-1)^k(k+1)w^{k}.
+\]
+取 $w=z^2$：$\displaystyle\frac{1}{(1+z^2)^2}=\sum_{k\ge0}(-1)^k(k+1)z^{2k}$，$|z^2|<1\iff|z|<1$，即 $R=1$。
+注意系数是 $(-1)^k(k+1)$，\textbf{不要}漏掉因子 $(k+1)$。奇点 $z=\pm\ii$ 为二阶极点，距离仍为 $1$。
+
+\subsection{(3) $\cos z^2$：把 $w=z^2$ 代入余弦展开}
+$\cos w=\sum_{k\ge0}\frac{(-1)^k}{(2k)!}w^{2k}$ 对一切 $w\in\mathbb{C}$ 成立，取 $w=z^2$：
+\[
+\cos z^2=\sum_{k\ge0}\frac{(-1)^k}{(2k)!}z^{4k}=1-\frac{z^4}{2!}+\frac{z^8}{4!}-\frac{z^{12}}{6!}+\cdots
+\]
+$\cos$ 是整函数、$z^2$ 是整函数，复合仍整 $\Rightarrow R=+\infty$。
+
+\subsection{(4)\,(5) $\sh z$ 与 $\ch z$：指数函数的奇偶部分}
+\[
+\sh z=\frac{e^{z}-e^{-z}}2=\sum_{k\ge0}\frac{z^{2k+1}}{(2k+1)!},
+\qquad
+\ch z=\frac{e^{z}+e^{-z}}2=\sum_{k\ge0}\frac{z^{2k}}{(2k)!},
+\]
+两个级数都对一切 $z$ 收敛（与 $e^z$ 的级数同半径），$R=+\infty$。两式相加、相减即得 $e^{\pm z}$ 的展开，互相核对。
+
+\subsection{(6) $e^{z^2}\sin z^2$：一步化成虚部}
+关键是 $e^{z^2}\sin z^2=\Imag\bigl(e^{z^2}e^{\ii z^2}\bigr)=\Imag e^{(1+\ii)z^2}$。于是
+\[
+e^{z^2}\sin z^2=\Imag\sum_{k\ge0}\frac{(1+\ii)^k}{k!}z^{2k}
+=\sum_{k\ge0}\frac{\Imag(1+\ii)^k}{k!}z^{2k},\qquad \Imag(1+\ii)^k=2^{k/2}\sin\frac{k\pi}{4}.
+\]
+逐项写出来就是
+\[
+e^{z^2}\sin z^2=z^2+z^4+\frac{z^6}{3}+0\cdot z^8-\frac{z^{10}}{30}-\frac{z^{12}}{90}-\frac{z^{14}}{630}+0\cdot z^{16}+\cdots
+\]
+（$k=4,8$ 处 $\sin\frac{k\pi}{4}=0$，出现"空洞"，但级数照样是完整幂级数。）复合整函数仍整，$R=+\infty$。
+
+\subsection{(7) $e^{z/(z-1)}$：本题最大的坑}\label{sec:q7}
+先化指数：
+\[
+\frac{z}{z-1}=-\frac{z}{1-z}=-(z+z^2+z^3+\cdots),\qquad |z|<1 .
+\]
+记 $g(z)=-(z+z^2+z^3+\cdots)$，代入 $e^{w}=\sum_{m\ge0}\frac{w^m}{m!}$：
+\[
+e^{z/(z-1)}=1+g+\frac{g^2}{2!}+\frac{g^3}{3!}+\cdots
+=1-z-\frac{z^2}{2}-\frac{z^3}{6}+\frac{z^4}{24}+\frac{19z^5}{120}+\frac{151z^6}{720}+\cdots
+\]
+（$a_4$ 的逐项收集见 \S\ref{sec:hand}，$a_5,a_6$ 由下面的递推式核对。）
+
+\begin{keybox}[结果与递推]
+\[
+\boxed{\;e^{\frac{z}{z-1}}=\sum_{n\ge0}a_nz^n,\qquad a_0=1,\ a_1=-1,\
+a_n=\sum_{m=1}^{n}\frac{(-1)^m}{m!}\binom{n-1}{m-1}\ (n\ge1)\;}
+\]
+等价地，由 $(z-1)^2f'(z)+f(z)=0$ 得\textbf{三项递推}
+\[
+(n+1)a_{n+1}=(2n-1)a_n-(n-1)a_{n-1},\qquad a_0=1,\ a_1=-1 .
+\]
+前九个系数：$1,\ -1,\ -\tfrac12,\ -\tfrac16,\ \tfrac1{24},\ \tfrac{19}{120},\ \tfrac{151}{720},\ \tfrac{1091}{5040},\ \tfrac{7841}{40320}$。
+\end{keybox}
+
+半径：$f(z)=e\cdot e^{1/(z-1)}$ 在 $|z|<1$ 内解析，$z=1$ 是本性奇点，故 $R=1$。
+
+\begin{warnbox}[陷阱：前四项"像" $-\frac{1}{n!}$]
+参考答案只写到 $1-z-\frac{z^2}{2!}-\frac{z^3}{3!}+\cdots$，很容易顺手补成 $a_n=-\frac1{n!}$。这个猜测在 $n=1,2,3$ 上恰好全对（$-1,-\frac12,-\frac16$），从 $n=4$ 起就崩：
+\[
+a_4=+\frac1{24}\neq-\frac1{4!}=-\frac1{24}\ (\text{符号相反}),\qquad
+a_5=\frac{19}{120}\neq-\frac1{5!}=-\frac1{120}\ (\text{量级也差}).
+\]
+数值核对（闭式 $a_n=\sum_m\frac{(-1)^m}{m!}\binom{n-1}{m-1}$ 与 Cauchy 积分路线）在 $n\le48$ 上最大偏差 $3.5\times10^{-15}$，见 \S\ref{sec:num}。
+\end{warnbox}
+
+\subsection{(8) $\sin\dfrac{1}{1-z}$：按原书提示拆成正弦和角}
+令 $w=\dfrac{z}{1-z}=z+z^2+z^3+\cdots\ (|z|<1)$，则 $\dfrac1{1-z}=1+w$，用和角公式：
+\[
+\sin\frac1{1-z}=\sin(1+w)=\sin1\cos w+\cos1\sin w,
+\]
+其中 $w=\frac{z}{1-z}$ 满足 $\frac{1}{1-z}=1+w$，而
+\[
+\cos w=1-\frac{w^2}{2!}+\frac{w^4}{4!}-\cdots,\qquad
+\sin w=w-\frac{w^3}{3!}+\frac{w^5}{5!}-\cdots
+\]
+把 $w^m=(z+z^2+z^3+\cdots)^m$ 逐项收进 $z^n$ 的系数（$\S\ref{sec:hand}$ 给出手算过程）：
+\[
+\begin{aligned}
+\sin\frac1{1-z}={}&\sin1+z\cos1+z^2\Bigl(\cos1-\frac{\sin1}{2}\Bigr)
++z^3\Bigl(\frac{5\cos1}{6}-\sin1\Bigr)\\
+&+z^4\Bigl(\frac{\cos1}{2}-\frac{35\sin1}{24}\Bigr)
++z^5\Bigl(\frac{\cos1}{120}-\frac{11\sin1}{6}\Bigr)+\cdots
+\end{aligned}
+\]
+即 $a_n=p_n\cos1+q_n\sin1$，前几对 $(p_n,q_n)$ 为
+\[
+(0,1),\ (1,0),\ \Bigl(1,-\tfrac12\Bigr),\ \Bigl(\tfrac56,-1\Bigr),\
+\Bigl(\tfrac12,-\tfrac{35}{24}\Bigr),\ \Bigl(\tfrac1{120},-\tfrac{11}6\Bigr).
+\]
+半径：$\sin\frac1{1-z}$ 在 $|z|<1$ 内解析，$z=1$ 是本性奇点，故 $R=1$。
+
+\begin{remark}
+(8) 与 (7) 是一对：二者都以 $w=z/(1-z)$ 为"内层"，都以 $z=1$ 为本性奇点，半径都由 $|1-0|=1$ 决定。这类函数的系数\textbf{不}趋于某个简单闭式序列，只能给递推或有限项；"写几项就够"正是本题的意图。
+\end{remark}
+
+\section{数值核验}\label{sec:num}
+
+\textbf{三条互相独立的路线.}
+\begin{enumerate}[leftmargin=1.8em,itemsep=0.2ex,topsep=0.3ex]
+\item[\textbf{A}] \textbf{闭式 / 递推}（\S3 的公式，分数精确算术）：(1)--(6) 用封闭系数，(7) 用三项递推，(8) 用 $w^m$ 的精确卷积，得到精确有理系数。
+\item[\textbf{B}] \textbf{Cauchy 积分 $+$ 圆上梯形法}：由 $a_n=\frac{1}{2\pi\ii}\oint_{|z|=r}\frac{f(z)}{z^{n+1}}\dd z$，取 $z_m=re^{2\pi\ii m/M}$ 得
+\[
+a_nr^n=\frac1{2\pi}\int_0^{2\pi}\!f(re^{\ii\theta})e^{-\ii n\theta}\dd\theta
+\approx\frac1M\sum_{m=0}^{M-1}f\!\left(re^{\frac{2\pi\ii m}{M}}\right)e^{-\frac{2\pi\ii mn}{M}},
+\]
+右端就是一个离散 Fourier 变换。取 $M=512$、$r=0.9$，误差 $\sim(r/R)^M$，对 $R=1$ 的函数约 $10^{-23}$，对整函数更快。
+\item[\textbf{C}] \textbf{50 位有效数字的有理逼近 / 高阶数值微分}：把 $f^{(n)}(0)/n!$ 用高精度 Cauchy 积分与 Richardson 外推核算 $a_0,\dots,a_6$，并与 A 逐位比对。
+\end{enumerate}
+
+\begin{table}[H]
+\centering
+\small
+\setlength{\tabcolsep}{5pt}
+\renewcommand{\arraystretch}{1.2}
+\begin{tabular}{@{}c >{\raggedright\arraybackslash}p{4.4cm} >{\raggedright\arraybackslash}p{2.3cm} >{\raggedright\arraybackslash}p{5.6cm}@{}}
+\toprule
+\textbf{函数} & $\max_{n\le48}|a_n^{\mathrm{A}}-a_n^{\mathrm{B}}|$ & \textbf{路线 C 比对} & \textbf{整函数在 $|z|=1.5$, $N=26$ 处的误差}\\
+\midrule
+(1) & $5.8\times10^{-15}$ & --- & ---\\
+(2) & $1.4\times10^{-13}$ & --- & ---\\
+(3) & $3.8\times10^{-15}$ & 一致 & $1.0\times10^{-6}$\\
+(4) & $5.8\times10^{-15}$ & 一致 & $\sim10^{-15}$（机器精度）\\
+(5) & $1.2\times10^{-15}$ & 一致 & $\sim10^{-15}$（机器精度）\\
+(6) & $5.5\times10^{-15}$ & 一致 & $1.4\times10^{-4}$\\
+(7) & $3.5\times10^{-15}$ & $a_0..a_6$ 吻合 15 位 & ---\\
+(8) & $1.7\times10^{-12}$ & $a_0..a_6$ 吻合 15 位 & ---\\
+\bottomrule
+\end{tabular}
+\caption{路线 A 与路线 B（完全独立：一条是代数公式，一条是数值积分）的最大偏差都在 $10^{-13}$ 以下，即双精度舍入水平。路线 C 与 A 在 (7)(8) 上逐位吻合，说明 (7) 的"陷阱"不是数值误差造成的。“很小”）。}
+\end{table}
+
+\begin{table}[H]
+\centering
+\small
+\setlength{\tabcolsep}{6pt}
+\renewcommand{\arraystretch}{1.2}
+\begin{tabular}{@{}c c c c c@{}}
+\toprule
+& \multicolumn{2}{c}{\textbf{圆内 $|z|=0.9$（应收敛）}} & \multicolumn{2}{c}{\textbf{圆外 $|z|=1.1$（应发散）}}\\
+\cmidrule(lr){2-3}\cmidrule(lr){4-5}
+\textbf{函数} & $N=20$ & $N=40$ & $N=20$ & $N=40$\\
+\midrule
+(1) & $0.404$ & $0.0442$（$\div9$） & $22.4$ & $165$（$\times7$）\\
+(2) & $8.43$ & $1.65$（$\div5$） & $265$ & $4235$（$\times16$）\\
+(7) & $0.0362$ & $0.00208$（$\div17$） & $5.99\times10^4$ & $5.99\times10^4$（饱和）\\
+(8) & $53.5$ & $38.9$ & $300$ & $8420$\\
+\bottomrule
+\end{tabular}
+\caption{$|z|=\rho$ 上 $\max_\theta|f(\rho e^{\ii\theta})-T_N(\rho e^{\ii\theta})|$：圆内加倍项数误差稳定下降，圆外不降反升（(7) 的圆外误差被 $|f|$ 自身在 $z=1$ 附近的巨大值饱和，与 $N$ 无关）。}
+\end{table}
+
+\begin{figure}[H]\centering
+\begin{tikzpicture}
+\begin{axis}[width=15.6cm,height=7.7cm,
+  xlabel={项数 $n$},ylabel={$\log_{10}|a_n|$},
+  xmin=0,xmax=49,ymin=-17.2,ymax=1.1,
+  unbounded coords=jump,
+  grid=both,minor tick num=1,
+  every axis plot/.append style={thin},
+  legend style={font=\scriptsize,draw=none,fill=none,at={(0.5,-0.20)},anchor=north,legend columns=4,column sep=1.0ex,row sep=-0.1ex}]
+\addplot[only marks,mark=*,mark size=1.1pt] table[x index=0,y index=1]{coeff-decay.dat}; \addlegendentry{(1) $1/(1+z^3)$}
+\addplot[only marks,mark=*,mark size=1.1pt] table[x index=0,y index=2]{coeff-decay.dat}; \addlegendentry{(2) $1/(1+z^2)^2$}
+\addplot[only marks,mark=*,mark size=1.1pt] table[x index=0,y index=3]{coeff-decay.dat}; \addlegendentry{(3) $\cos z^2$}
+\addplot[only marks,mark=*,mark size=1.1pt] table[x index=0,y index=4]{coeff-decay.dat}; \addlegendentry{(4) $\sh z$}
+\addplot[only marks,mark=*,mark size=1.1pt] table[x index=0,y index=5]{coeff-decay.dat}; \addlegendentry{(5) $\ch z$}
+\addplot[only marks,mark=*,mark size=1.1pt] table[x index=0,y index=6]{coeff-decay.dat}; \addlegendentry{(6) $e^{z^2}\sin z^2$}
+\addplot[only marks,mark=*,mark size=1.1pt] table[x index=0,y index=7]{coeff-decay.dat}; \addlegendentry{(7) $e^{z/(z-1)}$}
+\addplot[only marks,mark=*,mark size=1.1pt] table[x index=0,y index=8]{coeff-decay.dat}; \addlegendentry{(8) $\sin\frac1{1-z}$}
+% 同色细虚线只作走势提示，不进图例
+\addplot[dashed,thin] table[x index=0,y index=1]{coeff-decay.dat};
+\addplot[dashed,thin] table[x index=0,y index=2]{coeff-decay.dat};
+\addplot[dashed,thin] table[x index=0,y index=3]{coeff-decay.dat};
+\addplot[dashed,thin] table[x index=0,y index=4]{coeff-decay.dat};
+\addplot[dashed,thin] table[x index=0,y index=5]{coeff-decay.dat};
+\addplot[dashed,thin] table[x index=0,y index=6]{coeff-decay.dat};
+\addplot[dashed,thin] table[x index=0,y index=7]{coeff-decay.dat};
+\addplot[dashed,thin] table[x index=0,y index=8]{coeff-decay.dat};
+\draw[gray,dashed,thin] (axis cs:0,-16) -- (axis cs:49,-16);
+\node[gray,font=\scriptsize,anchor=south west] at (axis cs:20,-16.2) {作图地板 $-16$（不是数据）};
+\end{axis}
+\end{tikzpicture}
+\caption{每个点是一个 $\log_{10}|a_n|$；$a_n=0$ 的项（缺项）\textbf{不画}，所以 (1)(2)(3)(4)(5)(6) 都是稀疏点列而不是连续曲线，同色细虚线只是走势提示。(1) 只在 $n=3k$ 取到 $|a_n|=1$，对数坐标下是一条水平点列；(2) 缓慢上升（$|a_n|=k+1$）；(7)(8) 在 $10^{0}$ 附近起伏。这四条 $R=1$ 的序列\textbf{不衰减}，正是 $|a_n|^{1/n}\to1$ 的直观含义；整函数 (3)--(6) 阶乘式下跌，$n\approx10$--$20$ 就跌到 $-16$ 的作图地板以下。}
+\label{fig:decay}
+\end{figure}
+
+\begin{figure}[H]\centering
+\begin{tikzpicture}
+\begin{axis}[width=15.6cm,height=7.4cm,
+  xlabel={项数 $n$},ylabel={$|a_n|^{1/n}\to 1/R$},
+  xmin=0,xmax=49,ymin=0.25,ymax=1.5,
+  unbounded coords=jump,
+  grid=both,minor tick num=1,
+  every axis plot/.append style={semithick},
+  legend style={font=\scriptsize,draw=none,fill=none,at={(0.5,-0.20)},anchor=north,legend columns=4,column sep=1.0ex,row sep=-0.1ex}]
+\addplot[solid] table[x index=0,y index=1]{radius-estimate.dat}; \addlegendentry{(1) $1/(1+z^3)$}
+\addplot[dashed] table[x index=0,y index=2]{radius-estimate.dat}; \addlegendentry{(2) $1/(1+z^2)^2$}
+\addplot[dash dot] table[x index=0,y index=3]{radius-estimate.dat}; \addlegendentry{(7) $e^{z/(z-1)}$}
+\addplot[dotted] table[x index=0,y index=4]{radius-estimate.dat}; \addlegendentry{(8) $\sin\frac1{1-z}$}
+\draw[black,dashed,thin] (axis cs:0,1) -- (axis cs:49,1);
+\node[font=\scriptsize,anchor=south west,fill=white,inner sep=1pt] at (axis cs:33,1.02) {$1/R=1$};
+\end{axis}
+\end{tikzpicture}
+\caption{根值法给出的半径估计 $|a_n|^{1/n}$（数据 \texttt{radius-estimate.dat}，只列 $a_n\neq0$ 的项，缺项处断开）。四条曲线都趋向 $1/R=1$：(2) 从上方 $1.41\to1$，(7) 先降到 $0.45$ 再回升，(8) 由 $0.54$ 升至 $1.15$ 后回落，(1) 恒为 $1$。\textbf{比值法为什么不画}：$|a_n/a_{n+1}|$ 在 (1) 上恒为 $1$、在 (2) 上是 $(k+1)/(k+2)\to1$，看着挺好；但在 (7)(8) 上系数\textbf{变号且量级起伏}，比值序列会跳到 $23$ 又跌到 $0.04$，八条曲线挤在一张图里必然糊成一团。所以判别半径要用根值法（看 $\limsup|a_n|^{1/n}$），而不是逐项比值。}
+\end{figure}
+
+\begin{figure}[H]\centering
+\begin{tikzpicture}
+\begin{axis}[width=15.6cm,height=7.4cm,
+  xlabel={半径 $\rho$（圆 $|z|=\rho$）},ylabel={$\log_{10}\max_\theta|f-T_{20}|$},
+  xmin=0.15,xmax=1.52,ymin=-16.5,ymax=6.2,
+  grid=both,minor tick num=1,
+  every axis plot/.append style={thick,no markers},
+  legend style={font=\scriptsize,draw=none,fill=none,at={(0.5,-0.20)},anchor=north,legend columns=4,column sep=1.0ex,row sep=-0.1ex}]
+\addplot table[x index=0,y index=1]{err-vs-rho.dat}; \addlegendentry{(1) $1/(1+z^3)$}
+\addplot table[x index=0,y index=2]{err-vs-rho.dat}; \addlegendentry{(2) $1/(1+z^2)^2$}
+\addplot table[x index=0,y index=3]{err-vs-rho.dat}; \addlegendentry{(7) $e^{z/(z-1)}$}
+\addplot table[x index=0,y index=4]{err-vs-rho.dat}; \addlegendentry{(8) $\sin\frac1{1-z}$}
+\draw[black,dashed,thin] (axis cs:1,-16.5) -- (axis cs:1,6.2);
+\node[font=\scriptsize,anchor=north west,fill=white,inner sep=1pt] at (axis cs:1.02,5.9) {$\rho=R=1$};
+\end{axis}
+\end{tikzpicture}
+\caption{截断到 $N=20$ 时，$|z|=\rho$ 上的最大误差（数据 \texttt{err-vs-rho.dat}，$\rho=1$ 处奇点本身不可取，故跳过）。$\rho<1$ 时误差随 $\rho$ 急剧下降（每步约 $\rho^{21}$），越过 $\rho=1$ 立刻转为增长：\textbf{收敛圆是误差曲线的分水岭}。(7) 在 $\rho\to1^+$ 处超出坐标上界，因为 $|f|$ 本身在本性奇点旁爆炸。}
+\label{fig:err}
+\end{figure}
+
+\section{三个陷阱}\label{sec:traps}
+
+\begin{warnbox}[陷阱一：把前几项当通项 —— (7) 的"伪 $e^{-z}$"]
+$e^{z/(z-1)}=1-z-\frac{z^2}{2}-\frac{z^3}{6}+\cdots$ 的前四项恰好等于 $\sum_{n\ge0}\frac{(-1)^n}{n!}z^n$ 的前四项之外形（$a_1=-1=-\frac1{1!}$，$a_2=-\frac12=-\frac1{2!}$，$a_3=-\frac16=-\frac1{3!}$），于是"顺手"写出 $a_n=-\frac1{n!}$。但 $a_4=+\frac1{24}$（$-1/4!$ 的反号），$a_5=\frac{19}{120}$（$-\frac1{5!}$ 的 $-19$ 倍）。检验办法只有一条：\textbf{把系数带回递推式}（$n=4$ 时 $5a_5=7a_4-3a_3$，左边 $\frac{19}{24}$，右边 $\frac{7}{24}+\frac12=\frac{19}{24}$ \checkmark），或者用与推导无关的数值路线重算一遍。
+\end{warnbox}
+
+\begin{warnbox}[陷阱二：圆周上的收敛性必须逐点判断]
+Abel 定理只说\textbf{圆内}绝对收敛、\textbf{圆外}发散，圆周上的每一点都要单独判断。本题恰好四个 $R=1$ 的函数在 $|z|=1$ 上处处发散（(1) 在三个 $z^3=-1$ 的点上函数值无穷；(2) 在 $\pm\ii$ 处无穷；(7)(8) 在 $z=1$ 处无极限），但这不是普遍规律——例如 $\sum z^n/n^2$ 在 $|z|=1$ 上处处绝对收敛。
+\end{warnbox}
+
+\begin{warnbox}[陷阱三：系数"稀疏"就以为半径大]
+$\frac1{1+z^3}$ 只有 $n=3k$ 的系数非零，看起来"缺项很多"，但 $|a_{3k}|=1$，$\limsup|a_n|^{1/n}=1$，$R=1$ 分毫未动。缺项级数的圆周上"洞"更多，却不会把半径撑大：半径由\textbf{最坏的那条子列}决定。判别时用根值法（$\limsup$）而不是"看有几项"。
+\end{warnbox}
+
+\section{手算核对}\label{sec:hand}
+
+\textbf{(A) (7) 的 $a_4$ 逐项收集.} 记 $g=-(z+z^2+z^3+z^4+\cdots)$，则 $z^4$ 的系数来自四项：
+\[
+\underbrace{g}_{-1}+\underbrace{\frac{g^2}{2!}}_{\frac32}+\underbrace{\frac{g^3}{3!}}_{-\frac12}+\underbrace{\frac{g^4}{4!}}_{+\frac1{24}}
+=-1+\frac32-\frac12+\frac1{24}=\frac1{24}.
+\]
+（$g^2=(z+z^2+\cdots)^2$ 的 $z^4$ 系数为 $3$；$g^3$ 的为 $3$，$g^4$ 的为 $1$。）若误按 $e^{-z}$ 写成 $-\frac1{24}$，上式立刻对不上。
+
+\textbf{(B) 封闭公式的核对.} $a_n=\sum_{m=1}^{n}\frac{(-1)^m}{m!}\binom{n-1}{m-1}$：
+\[
+a_1=-1,\quad a_2=-1+\tfrac12=-\tfrac12,\quad a_3=-1+1-\tfrac16=-\tfrac16,
+\]
+\[
+a_4=-1+\tfrac32-\tfrac12+\tfrac1{24}=\tfrac1{24},\qquad
+a_5=-1+2-1+\tfrac16-\tfrac1{120}=\tfrac{19}{120}.
+\]
+与递推 $a_0=1,a_1=-1$，$(n+1)a_{n+1}=(2n-1)a_n-(n-1)a_{n-1}$ 逐项一致。
+
+\textbf{(C) (2) 的系数来自求导.} $\frac{1}{(1+w)^2}=-\frac{\dd}{\dd w}\frac{1}{1+w}=\sum_{k\ge0}(-1)^k(k+1)w^k$；取 $w=z^2$ 得 $\sum(-1)^k(k+1)z^{2k}$，故 $z^6$ 的系数是 $-4$（$k=3$），与 \S3.2 一致。
+
+\textbf{(D) (6) 的虚部表.} $\Imag(1+\ii)^k=2^{k/2}\sin\frac{k\pi}{4}$ 给出
+\[
+k=0,1,2,3,4,5,6,7,8:\quad 0,\ 1,\ 2,\ 2,\ 0,\ -4,\ -8,\ -8,\ 0,
+\]
+除以 $k!$ 得系数 $1,1,\frac13,0,-\frac1{30},-\frac1{90},-\frac1{630},0$（$k$ 从 $1$ 起对应 $z^2,z^4,z^6,z^8,\dots$），与表中 (6) 的展开逐项相符。
+
+\section{出处}
+
+\begin{itemize}[leftmargin=1.6em,itemsep=0.2ex,topsep=0.3ex]
+\item 题目：钟玉泉《复变函数论》习题四第 12 题（部分印次编号为第 11 题），八个函数与 (8) 的提示均照原书。
+\item 参考答案：该教材配套《复变函数---课后答案 习题四解答》对应条目；(7) 一题原书答案写作 $z/(z-1)=-z-z^2-z^3-\cdots$，$e^{z/(z-1)}=1-z-\frac{z^2}{2!}-\frac{z^3}{3!}+\cdots$，本页按同一路线算到 $a_8$ 并给出递推与封闭形式，同时指出"$-\frac1{n!}$"的规律在 $n=4$ 失效。
+\item 理论依据：Cauchy--Hadamard 公式、Cauchy 积分公式与 Cauchy 估计、Abel 定理、解析函数唯一性定理（任一本复变函数教材第四、五章）。
+\item 数值方法：圆上梯形法（等价于离散 Fourier 变换）求 Taylor 系数，误差 $\sim(r/R)^M$；高精度核算用 50 位有效数字的 Cauchy 积分与 Richardson 外推。
+\item 本页全部数字与三张图由同目录 \texttt{make-data.py} 生成（$M=512$，$r=0.9$，$n\le48$），可一键复算。
+\end{itemize}
+
+\clearpage
+\section*{一页总结}
+\addcontentsline{toc}{section}{一页总结}
+
+\begin{center}
+\small
+\setlength{\tabcolsep}{5pt}
+\renewcommand{\arraystretch}{1.3}
+\begin{tabular}{@{}c >{\raggedright\arraybackslash}p{3.4cm} c >{\raggedright\arraybackslash}p{8.0cm}@{}}
+\toprule
+& $f(z)$ & \boldmath$R$ & \textbf{一句话理由}\\
+\midrule
+(1) & $1/(1+z^3)$ & \textbf{1} & 几何级数代入 $z^3$；三个奇点 $z^3=-1$ 都在单位圆上\\
+(2) & $1/(1+z^2)^2$ & \textbf{1} & 几何级数求导，系数 $(-1)^k(k+1)$；$z=\pm\ii$ 为二阶极点\\
+(3) & $\cos z^2$ & $\boldsymbol{\infty}$ & 整函数代入整函数，系数 $\frac{(-1)^k}{(2k)!}$ 阶乘式衰减\\
+(4) & $\sh z$ & $\boldsymbol{\infty}$ & $e^{\pm z}$ 的奇部，只有奇次幂\\
+(5) & $\ch z$ & $\boldsymbol{\infty}$ & $e^{\pm z}$ 的偶部，只有偶次幂\\
+(6) & $e^{z^2}\sin z^2$ & $\boldsymbol{\infty}$ & $=\Imag e^{(1+\ii)z^2}$，系数 $\frac{2^{k/2}\sin(k\pi/4)}{k!}$\\
+(7) & $e^{z/(z-1)}$ & \textbf{1} & $z/(z-1)=-z-z^2-\cdots$，$z=1$ 本性奇点；$a_4=+\frac1{24}$ 是陷阱\\
+(8) & $\sin\frac1{1-z}$ & \textbf{1} & 和角公式拆成 $\sin1\cos w+\cos1\sin w$，$w=\frac z{1-z}$\\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\vspace{1.2ex}
+\begin{keybox}[把方法压缩成三句]
+\begin{enumerate}[leftmargin=1.6em,itemsep=0.15ex,topsep=0.2ex]
+\item \textbf{算}: 几何级数 / 已知展开 / 和角公式 / 虚部技巧，把函数写成 $\sum a_nz^n$。
+\item \textbf{定半径}: 找最近的奇点，$R=$ 它到展开中心的距离；整函数 $R=\infty$，无须做比值判别。
+\item \textbf{验收}: 系数必须能被独立路线复算（递推、封闭形式或 Cauchy 积分），$|a_n|^{1/n}\to1/R$ 是最直接的数值证据。
+\end{enumerate}
+\end{keybox}
+
+\end{document}
+
