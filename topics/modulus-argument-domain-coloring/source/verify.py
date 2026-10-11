@@ -11,6 +11,11 @@ angle = math.degrees(cmath.phase(z))
 z1 = 1.6 * cmath.exp(1j * math.radians(35))
 z2 = cmath.exp(1j * math.radians(70))
 product = z1 * z2
+try:
+    _ = 1 / 0j
+    zero_rejected = False
+except ZeroDivisionError:
+    zero_rejected = True
 
 checks = {
     "modulus": math.isclose(abs(z), math.sqrt(3.69), abs_tol=1e-12),
@@ -21,7 +26,7 @@ checks = {
     "log2_modulus": math.isclose(math.log2(abs(z)), 0.9418104081428358, abs_tol=1e-10),
     "product_modulus": math.isclose(abs(product), 1.6, abs_tol=1e-12),
     "product_angle": math.isclose(math.degrees(cmath.phase(product)), 105, abs_tol=1e-10),
-    "zero_has_no_inverse": True,
+    "zero_has_no_inverse": zero_rejected,
 }
 result = {
     "source_image": "original.png (user attachment, 1600x911)",
